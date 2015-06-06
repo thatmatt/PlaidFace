@@ -20,6 +20,7 @@ static GPathInfo PATH_INFO = {
 
 int boxW = 24;
 int curPlaid = 0;
+int curPlaidWidth = 0;
 
 static GColor8 getRandomColor(){
  
@@ -28,17 +29,21 @@ static GColor8 getRandomColor(){
   return color;
 } 
 
-static void makePlaid(GColor8 colorz[4][4]){
+static void makePlaidColors(GColor8 colorz[4][12]){
   
     
   
-   GColor8 plaidz[3][4][4] = {
+   GColor8 plaidz[5][6][12] = {
     {{GColorOxfordBlue, GColorDarkGray, GColorOxfordBlue, GColorCobaltBlue},
     {GColorLiberty, GColorWhite, GColorLiberty, GColorPictonBlue},
     {GColorOxfordBlue, GColorDarkGray, GColorOxfordBlue, GColorCobaltBlue},
-    {GColorLiberty, GColorCeleste, GColorLiberty, GColorPictonBlue}},
+    {GColorLiberty, GColorCeleste, GColorLiberty, GColorPictonBlue},
+    {GColorOxfordBlue, GColorDarkGray, GColorOxfordBlue, GColorCobaltBlue},
+    {GColorLiberty, GColorWhite, GColorLiberty, GColorPictonBlue}},
 
     {{GColorBlack, GColorDarkGray, GColorBlack, GColorDarkGray},
+    {GColorLightGray, GColorWhite, GColorLightGray, GColorWhite},
+    {GColorBlack, GColorDarkGray, GColorBlack, GColorDarkGray},
     {GColorLightGray, GColorWhite, GColorLightGray, GColorWhite},
     {GColorBlack, GColorDarkGray, GColorBlack, GColorDarkGray},
     {GColorLightGray, GColorWhite, GColorLightGray, GColorWhite}},
@@ -46,13 +51,58 @@ static void makePlaid(GColor8 colorz[4][4]){
     {{GColorDarkGreen, GColorDarkGray, GColorDarkGreen, GColorIslamicGreen},
     {GColorKellyGreen, GColorWhite, GColorKellyGreen, GColorInchworm},
     {GColorDarkGreen, GColorDarkGray, GColorDarkGreen, GColorIslamicGreen},
-    {GColorKellyGreen, GColorMintGreen, GColorKellyGreen, GColorInchworm}}
+    {GColorKellyGreen, GColorMintGreen, GColorKellyGreen, GColorInchworm},
+    {GColorDarkGreen, GColorDarkGray, GColorDarkGreen, GColorIslamicGreen},
+    {GColorKellyGreen, GColorWhite, GColorKellyGreen, GColorInchworm}},
+      
+    {{ GColorDarkGray, GColorBlack,  GColorDarkGray, GColorWhite, GColorVividCerulean, GColorWhite},
+    { GColorDarkGray, GColorBlack,  GColorDarkGray, GColorWhite, GColorVividCerulean, GColorWhite},
+      { GColorDarkGray, GColorBlack,  GColorDarkGray, GColorWhite, GColorVividCerulean, GColorWhite},
+      { GColorDarkGray, GColorBlack,  GColorDarkGray, GColorWhite, GColorVividCerulean, GColorWhite},
+      { GColorDarkGray, GColorBlack,  GColorDarkGray, GColorWhite, GColorVividCerulean, GColorWhite},
+      { GColorDarkGray, GColorBlack,  GColorDarkGray, GColorWhite, GColorVividCerulean, GColorWhite}
+    
+    },
+    
+    {{GColorOxfordBlue, GColorWhite, GColorDarkGray, GColorWhite, GColorDarkGray,
+      GColorWhite,GColorBlueMoon,GColorWhite, GColorDarkGray, GColorWhite, GColorDarkGray, GColorWhite},
+    {GColorDarkGray, GColorDarkGray, GColorDarkGray, GColorDarkGray, GColorDarkGray,
+      GColorDarkGray,GColorDarkGray,GColorDarkGray, GColorDarkGray, GColorDarkGray, GColorDarkGray, GColorDarkGray},
+    {GColorOxfordBlue, GColorWhite, GColorDarkGray, GColorWhite, GColorDarkGray,
+      GColorWhite,GColorBlueMoon,GColorWhite, GColorDarkGray, GColorWhite, GColorDarkGray, GColorWhite},
+    {GColorDarkGray, GColorDarkGray, GColorDarkGray, GColorDarkGray, GColorDarkGray,
+      GColorDarkGray,GColorDarkGray,GColorDarkGray, GColorDarkGray, GColorDarkGray, GColorDarkGray, GColorDarkGray},
+    {GColorOxfordBlue, GColorWhite, GColorDarkGray, GColorWhite, GColorDarkGray,
+      GColorWhite,GColorBlueMoon,GColorWhite, GColorDarkGray, GColorWhite, GColorDarkGray, GColorWhite},
+    {GColorOxfordBlue, GColorCeleste, GColorDarkGray, GColorCeleste, GColorDarkGray,
+      GColorCeleste,GColorBlueMoon,GColorCeleste, GColorDarkGray, GColorCeleste, GColorDarkGray, GColorCeleste}}
+      
   };
   
 
    
   memcpy(colorz, plaidz[curPlaid], sizeof(plaidz[curPlaid]));
 }
+
+static void makePlaidWidths(int widths[2][12]){
+  int plaidWidth[4][2][12] = {
+    {{20,20,20,20},
+    {20,20,20,20}},
+      
+    {{20,2,20,2},
+    {20,2,20,2}},
+      
+    {{1,1,1,4,4,4},
+    {168,168,168,168}},
+      
+    {{6,6,1,6,1,6,6,6,1,6,1,6},
+    {6,1,6,1,6,6,6,1,6,1,6,6}}
+  };  
+  
+    memcpy(widths, plaidWidth[curPlaidWidth], sizeof(plaidWidth[curPlaidWidth]));
+
+}
+
 
 
 static void plaid(GContext *ctx){
@@ -63,6 +113,8 @@ static void plaid(GContext *ctx){
   int curH = 0;
   int curColorCol = 0;
   int curColorRow = 0;
+  int curHeight = 0;
+  int curWidth = 0;
   
   
  /* GColor8 colorz[4][4] = {
@@ -72,30 +124,46 @@ static void plaid(GContext *ctx){
     {GColorLiberty, GColorCeleste, GColorLiberty, GColorPictonBlue}
   };*/
   
-  GColor8 colorz[4][4];
-  makePlaid(colorz);
+  GColor8 colorz[6][12];
+  makePlaidColors(colorz);
+  
+  int widths[2][12];
+  makePlaidWidths(widths);
   
   while (curH < 168){
       graphics_context_set_fill_color(ctx,  colorz[curColorRow][curColorCol]);   
-      graphics_fill_rect(ctx, GRect(curW, curH, boxW, boxW),0 ,0);
+      graphics_fill_rect(ctx, GRect(curW, curH, widths[0][curWidth], widths[1][curHeight]),0 ,0);
       
       //Increment colors
       curColorCol++;
       if (curColorCol >= (int) (sizeof(colorz[curColorRow])/sizeof(colorz[curColorRow][0])) ){
         curColorCol = 0;
       }
-      
+ 
+    
+      //Increment widths
+      curW+=widths[0][curWidth];
+      curWidth++;
+      if (curWidth >= (int) (sizeof(widths[0])/sizeof(widths[0][0])) ){
+        curWidth = 0;
+      }
       
       //Increment location
-      curW+=boxW;
+      
       if (curW > 144){
-        curH+=boxW;
+        curH+=widths[1][curHeight];
         curW = 0;
         curColorRow++;
         curColorCol = 0;
         if (curColorRow >= (int) (sizeof(colorz) / sizeof(colorz[0] ) ) ){
           curColorRow = 0;  
-      }
+        }
+        
+        curHeight++;
+        curWidth = 0;
+        if (curHeight >= (int) (sizeof(widths[1]) / sizeof(widths[1][0] ) ) ){
+          curHeight = 0;  
+        }
       }      
     
   }
@@ -120,6 +188,8 @@ static void update_time() {
 //  } else {
     //Use 12 hour format
     strftime(buffer, sizeof("00:00"), "%I:%M", tick_time);
+  if (buffer[0] == '0')
+    buffer[0] = ' ';
  // }
 
   // Display this time on the TextLayer
@@ -128,7 +198,9 @@ static void update_time() {
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
   layer_mark_dirty(s_path_layer);
-  boxW+=2;
+  curPlaidWidth++;
+  if(curPlaidWidth > 3)
+    curPlaidWidth = 0;
 }
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -140,7 +212,7 @@ static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   curPlaid++;
-  if (curPlaid > 2)
+  if (curPlaid > 4)
     curPlaid = 0;
   layer_mark_dirty(s_path_layer);
 }
