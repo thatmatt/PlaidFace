@@ -18,93 +18,104 @@ static GPathInfo PATH_INFO = {
   .points = (GPoint[]) { {30, 60}, {70, 30}, {110, 60}, {110, 120}, {30, 120} }
 };
 
-int boxW = 24;
 int curPlaid = 0;
-int curPlaidWidth = 0;
+int curPlaidColor = 0;
 
-static GColor8 getRandomColor(){
- 
-  GColor8 color = GColorFromRGB((rand() % 255), (rand() % 255), (rand() % 255));
 
-  return color;
-} 
-
-static void makePlaidColors(GColor8 colorz[4][12]){
-  
     
-  
-   GColor8 plaidz[5][6][12] = {
-    {{GColorOxfordBlue, GColorDarkGray, GColorOxfordBlue, GColorCobaltBlue},
-    {GColorLiberty, GColorWhite, GColorLiberty, GColorPictonBlue},
-    {GColorOxfordBlue, GColorDarkGray, GColorOxfordBlue, GColorCobaltBlue},
-    {GColorLiberty, GColorCeleste, GColorLiberty, GColorPictonBlue},
-    {GColorOxfordBlue, GColorDarkGray, GColorOxfordBlue, GColorCobaltBlue},
-    {GColorLiberty, GColorWhite, GColorLiberty, GColorPictonBlue}},
+static  uint8_t plaidColor[][4][6][12] = {
+    //Gingham
+    {{{GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8},
+    {GColorLibertyARGB8, GColorWhiteARGB8, GColorLibertyARGB8, GColorPictonBlueARGB8},
+    {GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8},
+    {GColorLibertyARGB8, GColorCelesteARGB8, GColorLibertyARGB8, GColorPictonBlueARGB8},
+    {GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8},
+    {GColorLibertyARGB8, GColorWhiteARGB8, GColorLibertyARGB8, GColorPictonBlueARGB8}},
 
-    {{GColorBlack, GColorDarkGray, GColorBlack, GColorDarkGray},
-    {GColorLightGray, GColorWhite, GColorLightGray, GColorWhite},
-    {GColorBlack, GColorDarkGray, GColorBlack, GColorDarkGray},
-    {GColorLightGray, GColorWhite, GColorLightGray, GColorWhite},
-    {GColorBlack, GColorDarkGray, GColorBlack, GColorDarkGray},
-    {GColorLightGray, GColorWhite, GColorLightGray, GColorWhite}},
+    {{GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8},
+    {GColorLightGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8},
+    {GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8},
+    {GColorLightGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8},
+    {GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8},
+    {GColorLightGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8}},
     
-    {{GColorDarkGreen, GColorDarkGray, GColorDarkGreen, GColorIslamicGreen},
-    {GColorKellyGreen, GColorWhite, GColorKellyGreen, GColorInchworm},
-    {GColorDarkGreen, GColorDarkGray, GColorDarkGreen, GColorIslamicGreen},
-    {GColorKellyGreen, GColorMintGreen, GColorKellyGreen, GColorInchworm},
-    {GColorDarkGreen, GColorDarkGray, GColorDarkGreen, GColorIslamicGreen},
-    {GColorKellyGreen, GColorWhite, GColorKellyGreen, GColorInchworm}},
+    {{GColorDarkGreenARGB8, GColorDarkGrayARGB8, GColorDarkGreenARGB8, GColorIslamicGreenARGB8},
+    {GColorKellyGreenARGB8, GColorWhiteARGB8, GColorKellyGreenARGB8, GColorInchwormARGB8},
+    {GColorDarkGreenARGB8, GColorDarkGrayARGB8, GColorDarkGreenARGB8, GColorIslamicGreenARGB8},
+    {GColorKellyGreenARGB8, GColorMintGreenARGB8, GColorKellyGreenARGB8, GColorInchwormARGB8},
+    {GColorDarkGreenARGB8, GColorDarkGrayARGB8, GColorDarkGreenARGB8, GColorIslamicGreenARGB8},
+    {GColorKellyGreenARGB8, GColorWhiteARGB8, GColorKellyGreenARGB8, GColorInchwormARGB8}}},
       
-    {{ GColorDarkGray, GColorBlack,  GColorDarkGray, GColorWhite, GColorVividCerulean, GColorWhite},
-    { GColorDarkGray, GColorBlack,  GColorDarkGray, GColorWhite, GColorVividCerulean, GColorWhite},
-      { GColorDarkGray, GColorBlack,  GColorDarkGray, GColorWhite, GColorVividCerulean, GColorWhite},
-      { GColorDarkGray, GColorBlack,  GColorDarkGray, GColorWhite, GColorVividCerulean, GColorWhite},
-      { GColorDarkGray, GColorBlack,  GColorDarkGray, GColorWhite, GColorVividCerulean, GColorWhite},
-      { GColorDarkGray, GColorBlack,  GColorDarkGray, GColorWhite, GColorVividCerulean, GColorWhite}
+    //Random
+    {{{GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8},
+    {GColorLibertyARGB8, GColorWhiteARGB8, GColorLibertyARGB8, GColorPictonBlueARGB8},
+    {GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8},
+    {GColorLibertyARGB8, GColorCelesteARGB8, GColorLibertyARGB8, GColorPictonBlueARGB8},
+    {GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8},
+    {GColorLibertyARGB8, GColorWhiteARGB8, GColorLibertyARGB8, GColorPictonBlueARGB8}},
+
+    {{GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8},
+    {GColorLightGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8},
+    {GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8},
+    {GColorLightGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8},
+    {GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8},
+    {GColorLightGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8}},
     
+    {{GColorDarkGreenARGB8, GColorDarkGrayARGB8, GColorDarkGreenARGB8, GColorIslamicGreenARGB8},
+    {GColorKellyGreenARGB8, GColorWhiteARGB8, GColorKellyGreenARGB8, GColorInchwormARGB8},
+    {GColorDarkGreenARGB8, GColorDarkGrayARGB8, GColorDarkGreenARGB8, GColorIslamicGreenARGB8},
+    {GColorKellyGreenARGB8, GColorMintGreenARGB8, GColorKellyGreenARGB8, GColorInchwormARGB8},
+    {GColorDarkGreenARGB8, GColorDarkGrayARGB8, GColorDarkGreenARGB8, GColorIslamicGreenARGB8},
+    {GColorKellyGreenARGB8, GColorWhiteARGB8, GColorKellyGreenARGB8, GColorInchwormARGB8}}},
+      
+    //Stripes  
+    {{{ GColorDarkGrayARGB8, GColorBlackARGB8,  GColorDarkGrayARGB8, GColorWhiteARGB8, GColorVividCeruleanARGB8, GColorWhiteARGB8}},
+    {{ GColorDarkGrayARGB8, GColorBlackARGB8,  GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGreenARGB8, GColorWhiteARGB8}},
+    {{ GColorDarkGrayARGB8, GColorBlackARGB8,  GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkCandyAppleRedARGB8, GColorWhiteARGB8}},
     },
     
-    {{GColorOxfordBlue, GColorWhite, GColorDarkGray, GColorWhite, GColorDarkGray,
-      GColorWhite,GColorBlueMoon,GColorWhite, GColorDarkGray, GColorWhite, GColorDarkGray, GColorWhite},
-    {GColorDarkGray, GColorDarkGray, GColorDarkGray, GColorDarkGray, GColorDarkGray,
-      GColorDarkGray,GColorDarkGray,GColorDarkGray, GColorDarkGray, GColorDarkGray, GColorDarkGray, GColorDarkGray},
-    {GColorOxfordBlue, GColorWhite, GColorDarkGray, GColorWhite, GColorDarkGray,
-      GColorWhite,GColorBlueMoon,GColorWhite, GColorDarkGray, GColorWhite, GColorDarkGray, GColorWhite},
-    {GColorDarkGray, GColorDarkGray, GColorDarkGray, GColorDarkGray, GColorDarkGray,
-      GColorDarkGray,GColorDarkGray,GColorDarkGray, GColorDarkGray, GColorDarkGray, GColorDarkGray, GColorDarkGray},
-    {GColorOxfordBlue, GColorWhite, GColorDarkGray, GColorWhite, GColorDarkGray,
-      GColorWhite,GColorBlueMoon,GColorWhite, GColorDarkGray, GColorWhite, GColorDarkGray, GColorWhite},
-    {GColorOxfordBlue, GColorCeleste, GColorDarkGray, GColorCeleste, GColorDarkGray,
-      GColorCeleste,GColorBlueMoon,GColorCeleste, GColorDarkGray, GColorCeleste, GColorDarkGray, GColorCeleste}}
+    //Grid
+    {{{GColorOxfordBlueARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8,
+      GColorWhiteARGB8,GColorBlueMoonARGB8,GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8},
+    {GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8,
+      GColorDarkGrayARGB8,GColorDarkGrayARGB8,GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8},
+    {GColorOxfordBlueARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8,
+      GColorWhiteARGB8,GColorBlueMoonARGB8,GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8},
+    {GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8,
+      GColorDarkGrayARGB8,GColorDarkGrayARGB8,GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8},
+    {GColorOxfordBlueARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8,
+      GColorWhiteARGB8,GColorBlueMoonARGB8,GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8},
+    {GColorOxfordBlueARGB8, GColorCelesteARGB8, GColorDarkGrayARGB8, GColorCelesteARGB8, GColorDarkGrayARGB8,
+      GColorCelesteARGB8,GColorBlueMoonARGB8,GColorCelesteARGB8, GColorDarkGrayARGB8, GColorCelesteARGB8, GColorDarkGrayARGB8, GColorCelesteARGB8}}},
       
-  };
-  
+    //Blue boxes
+    {{{GColorBlueARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8},
+      {GColorBlueARGB8, GColorPictonBlueARGB8, GColorBlackARGB8, GColorPictonBlueARGB8, GColorBlackARGB8, GColorPictonBlueARGB8 }
+    }}
+};  
 
-   
-  memcpy(colorz, plaidz[curPlaid], sizeof(plaidz[curPlaid]));
-}
-
-static void makePlaidWidths(int widths[2][12]){
-  int plaidWidth[4][2][12] = {
+ int plaidWidth[][2][12] = {
+    //Gingham
     {{20,20,20,20},
     {20,20,20,20}},
-      
+    
+    //Random
     {{20,2,20,2},
     {20,2,20,2}},
       
+    //Vertical Stripes  
     {{1,1,1,4,4,4},
     {168,168,168,168}},
-      
+    
+    //Aqua grid
     {{6,6,1,6,1,6,6,6,1,6,1,6},
-    {6,1,6,1,6,6,6,1,6,1,6,6}}
+    {6,1,6,1,6,6,6,1,6,1,6,6}},
+   
+    //Blue boxes
+    {{14,2,2,14,2,2},
+    {14,14}}
   };  
   
-    memcpy(widths, plaidWidth[curPlaidWidth], sizeof(plaidWidth[curPlaidWidth]));
-
-}
-
-
-
 static void plaid(GContext *ctx){
   //144 × 168 dimensions
 
@@ -116,52 +127,38 @@ static void plaid(GContext *ctx){
   int curHeight = 0;
   int curWidth = 0;
   
-  
- /* GColor8 colorz[4][4] = {
-    {GColorOxfordBlue, GColorDarkGray, GColorOxfordBlue, GColorCobaltBlue},
-    {GColorLiberty, GColorWhite, GColorLiberty, GColorPictonBlue},
-    {GColorOxfordBlue, GColorDarkGray, GColorOxfordBlue, GColorCobaltBlue},
-    {GColorLiberty, GColorCeleste, GColorLiberty, GColorPictonBlue}
-  };*/
-  
-  GColor8 colorz[6][12];
-  makePlaidColors(colorz);
-  
-  int widths[2][12];
-  makePlaidWidths(widths);
-  
   while (curH < 168){
-      graphics_context_set_fill_color(ctx,  colorz[curColorRow][curColorCol]);   
-      graphics_fill_rect(ctx, GRect(curW, curH, widths[0][curWidth], widths[1][curHeight]),0 ,0);
+      graphics_context_set_fill_color(ctx,  (GColor8) plaidColor[curPlaid][curPlaidColor][curColorRow][curColorCol]);   
+      graphics_fill_rect(ctx, GRect(curW, curH, plaidWidth[curPlaid][0][curWidth], plaidWidth[curPlaid][1][curHeight]),0 ,0);
       
       //Increment colors
       curColorCol++;
-      if (curColorCol >= (int) (sizeof(colorz[curColorRow])/sizeof(colorz[curColorRow][0])) ){
+      if (curColorCol >= (int) (sizeof(plaidColor[curPlaid][curPlaidColor][curColorRow])/sizeof(plaidColor[curPlaid][curPlaidColor][curColorRow][0])) ){
         curColorCol = 0;
       }
  
     
       //Increment widths
-      curW+=widths[0][curWidth];
+      curW+=plaidWidth[curPlaid][0][curWidth];
       curWidth++;
-      if (curWidth >= (int) (sizeof(widths[0])/sizeof(widths[0][0])) ){
+      if (curWidth >= (int) (sizeof(plaidWidth[curPlaid][0])/sizeof(plaidWidth[curPlaid][0][0])) ){
         curWidth = 0;
       }
       
       //Increment location
       
       if (curW > 144){
-        curH+=widths[1][curHeight];
+        curH+=plaidWidth[curPlaid][1][curHeight];
         curW = 0;
         curColorRow++;
         curColorCol = 0;
-        if (curColorRow >= (int) (sizeof(colorz) / sizeof(colorz[0] ) ) ){
+        if (curColorRow >= (int) (sizeof(plaidColor[curPlaid][curPlaidColor]) / sizeof(plaidColor[curPlaid][curPlaidColor][0] ) ) ){
           curColorRow = 0;  
         }
         
         curHeight++;
         curWidth = 0;
-        if (curHeight >= (int) (sizeof(widths[1]) / sizeof(widths[1][0] ) ) ){
+        if (curHeight >= (int) (sizeof(plaidWidth[curPlaid][1]) / sizeof(plaidWidth[curPlaid][1][0] ) ) ){
           curHeight = 0;  
         }
       }      
@@ -197,23 +194,22 @@ static void update_time() {
 }
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
+  curPlaidColor++;
+  if ( plaidColor[curPlaid][curPlaidColor][0][0] == 0)
+  //if (curPlaidColor >= (int) (sizeof(plaidColor[curPlaid]) / sizeof(plaidColor[curPlaid][0] ) ) )
+    curPlaidColor = 0;
   layer_mark_dirty(s_path_layer);
-  curPlaidWidth++;
-  if(curPlaidWidth > 3)
-    curPlaidWidth = 0;
 }
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
-  layer_mark_dirty(s_path_layer);
-  boxW-=2;
-  if (boxW < 2)
-    boxW = 2;
 }
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   curPlaid++;
-  if (curPlaid > 4)
+  curPlaidColor = 0;
+  if (curPlaid > 4){
     curPlaid = 0;
+  }
   layer_mark_dirty(s_path_layer);
 }
 
