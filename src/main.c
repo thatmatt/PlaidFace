@@ -24,6 +24,7 @@ static GPathInfo PATH_INFO = {
 int curPlaid = 0;
 int curPlaidColor = 0;
 int curHandColor = 0;
+bool digitalWatch = false;
 
 static const GPathInfo MINUTE_HAND_POINTS = {
   4,
@@ -51,28 +52,40 @@ static uint8_t handColors[] = {
 };
 
 
-static  uint8_t plaidColor[6][5][8][12] = {
+static  uint8_t plaidColor[][4][8][12] = {
     //Gingham
-    {{{GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8},
-    {GColorLibertyARGB8, GColorWhiteARGB8, GColorLibertyARGB8, GColorPictonBlueARGB8},
-    {GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8},
-    {GColorLibertyARGB8, GColorCelesteARGB8, GColorLibertyARGB8, GColorPictonBlueARGB8},
-    {GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8},
-    {GColorLibertyARGB8, GColorWhiteARGB8, GColorLibertyARGB8, GColorPictonBlueARGB8}},
+    {{{GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8,GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8},
+    {GColorLibertyARGB8, GColorWhiteARGB8, GColorLibertyARGB8, GColorPictonBlueARGB8, GColorLibertyARGB8, GColorWhiteARGB8, GColorLibertyARGB8, GColorPictonBlueARGB8},
+    {GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8, GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8},
+    {GColorLibertyARGB8, GColorCelesteARGB8, GColorLibertyARGB8, GColorPictonBlueARGB8, GColorLibertyARGB8, GColorCelesteARGB8, GColorLibertyARGB8, GColorPictonBlueARGB8},
+    {GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8, GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8},
+    {GColorLibertyARGB8, GColorWhiteARGB8, GColorLibertyARGB8, GColorPictonBlueARGB8, GColorLibertyARGB8, GColorWhiteARGB8, GColorLibertyARGB8, GColorPictonBlueARGB8}},
 
-    {{GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8},
-    {GColorLightGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8},
-    {GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8},
-    {GColorLightGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8},
-    {GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8},
-    {GColorLightGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8}},
+    {{GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8},
+    {GColorLightGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8},
+    {GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8},
+    {GColorLightGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8},
+    {GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8},
+    {GColorLightGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8}},
     
-    {{GColorDarkGreenARGB8, GColorDarkGrayARGB8, GColorDarkGreenARGB8, GColorIslamicGreenARGB8},
-    {GColorKellyGreenARGB8, GColorWhiteARGB8, GColorKellyGreenARGB8, GColorInchwormARGB8},
-    {GColorDarkGreenARGB8, GColorDarkGrayARGB8, GColorDarkGreenARGB8, GColorIslamicGreenARGB8},
-    {GColorKellyGreenARGB8, GColorMintGreenARGB8, GColorKellyGreenARGB8, GColorInchwormARGB8},
-    {GColorDarkGreenARGB8, GColorDarkGrayARGB8, GColorDarkGreenARGB8, GColorIslamicGreenARGB8},
-    {GColorKellyGreenARGB8, GColorWhiteARGB8, GColorKellyGreenARGB8, GColorInchwormARGB8}}},
+    {{GColorDarkGreenARGB8, GColorDarkGrayARGB8, GColorDarkGreenARGB8, GColorIslamicGreenARGB8, GColorDarkGreenARGB8, GColorDarkGrayARGB8, GColorDarkGreenARGB8, GColorIslamicGreenARGB8},
+    {GColorKellyGreenARGB8, GColorWhiteARGB8, GColorKellyGreenARGB8, GColorInchwormARGB8, GColorKellyGreenARGB8, GColorWhiteARGB8, GColorKellyGreenARGB8, GColorInchwormARGB8},
+    {GColorDarkGreenARGB8, GColorDarkGrayARGB8, GColorDarkGreenARGB8, GColorIslamicGreenARGB8, GColorDarkGreenARGB8, GColorDarkGrayARGB8, GColorDarkGreenARGB8, GColorIslamicGreenARGB8},
+    {GColorKellyGreenARGB8, GColorMintGreenARGB8, GColorKellyGreenARGB8, GColorInchwormARGB8, GColorKellyGreenARGB8, GColorMintGreenARGB8, GColorKellyGreenARGB8, GColorInchwormARGB8},
+    {GColorDarkGreenARGB8, GColorDarkGrayARGB8, GColorDarkGreenARGB8, GColorIslamicGreenARGB8, GColorDarkGreenARGB8, GColorDarkGrayARGB8, GColorDarkGreenARGB8, GColorIslamicGreenARGB8},
+    {GColorKellyGreenARGB8, GColorWhiteARGB8, GColorKellyGreenARGB8, GColorInchwormARGB8, GColorKellyGreenARGB8, GColorWhiteARGB8, GColorKellyGreenARGB8, GColorInchwormARGB8}},
+      
+     {{GColorDarkCandyAppleRedARGB8, GColorDarkGrayARGB8, GColorDarkCandyAppleRedARGB8, GColorRedARGB8, GColorDarkCandyAppleRedARGB8, GColorDarkGrayARGB8, GColorDarkCandyAppleRedARGB8, GColorDarkGrayARGB8},
+    {GColorFollyARGB8, GColorWhiteARGB8, GColorFollyARGB8, GColorSunsetOrangeARGB8, GColorFollyARGB8, GColorWhiteARGB8, GColorFollyARGB8, GColorSunsetOrangeARGB8},
+    {GColorDarkCandyAppleRedARGB8, GColorDarkGrayARGB8, GColorDarkCandyAppleRedARGB8, GColorRedARGB8, GColorDarkCandyAppleRedARGB8, GColorDarkGrayARGB8, GColorDarkCandyAppleRedARGB8, GColorDarkGrayARGB8},
+    {GColorFollyARGB8, GColorMelonARGB8, GColorFollyARGB8, GColorSunsetOrangeARGB8, GColorFollyARGB8, GColorMelonARGB8, GColorFollyARGB8, GColorSunsetOrangeARGB8},
+    {GColorDarkCandyAppleRedARGB8, GColorDarkGrayARGB8, GColorDarkCandyAppleRedARGB8, GColorRedARGB8, GColorDarkCandyAppleRedARGB8, GColorDarkGrayARGB8, GColorDarkCandyAppleRedARGB8, GColorDarkGrayARGB8},
+    {GColorFollyARGB8, GColorWhiteARGB8, GColorFollyARGB8, GColorSunsetOrangeARGB8, GColorFollyARGB8, GColorWhiteARGB8, GColorFollyARGB8, GColorSunsetOrangeARGB8}},
+      
+    
+   
+    
+    },
       
     //Random
     {{{GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8},
@@ -94,16 +107,27 @@ static  uint8_t plaidColor[6][5][8][12] = {
     {GColorDarkGreenARGB8, GColorDarkGrayARGB8, GColorDarkGreenARGB8, GColorIslamicGreenARGB8},
     {GColorKellyGreenARGB8, GColorMintGreenARGB8, GColorKellyGreenARGB8, GColorInchwormARGB8},
     {GColorDarkGreenARGB8, GColorDarkGrayARGB8, GColorDarkGreenARGB8, GColorIslamicGreenARGB8},
-    {GColorKellyGreenARGB8, GColorWhiteARGB8, GColorKellyGreenARGB8, GColorInchwormARGB8}}},
+    {GColorKellyGreenARGB8, GColorWhiteARGB8, GColorKellyGreenARGB8, GColorInchwormARGB8}},
+    
+    {{GColorDarkCandyAppleRedARGB8, GColorDarkGrayARGB8, GColorDarkCandyAppleRedARGB8, GColorFollyARGB8},
+    {GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorFollyARGB8},
+    {GColorDarkCandyAppleRedARGB8, GColorDarkGrayARGB8, GColorDarkCandyAppleRedARGB8, GColorFollyARGB8},
+    {GColorDarkCandyAppleRedARGB8, GColorDarkGrayARGB8, GColorDarkCandyAppleRedARGB8, GColorFollyARGB8},
+    {GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorFollyARGB8},
+    {GColorDarkCandyAppleRedARGB8, GColorDarkGrayARGB8, GColorDarkCandyAppleRedARGB8, GColorFollyARGB8}}
+    
+    },
       
     //Stripes  
     {{{ GColorDarkGrayARGB8, GColorBlackARGB8,  GColorDarkGrayARGB8, GColorWhiteARGB8, GColorVividCeruleanARGB8, GColorWhiteARGB8}},
+    {{ GColorBlackARGB8, GColorBlackARGB8,  GColorDarkGrayARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8}},
     {{ GColorDarkGrayARGB8, GColorBlackARGB8,  GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGreenARGB8, GColorWhiteARGB8}},
     {{ GColorDarkGrayARGB8, GColorBlackARGB8,  GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkCandyAppleRedARGB8, GColorWhiteARGB8}},
     },
     
     //Grid
-    {{{GColorOxfordBlueARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8,
+    {
+    {{GColorOxfordBlueARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8,
       GColorWhiteARGB8,GColorBlueMoonARGB8,GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8},
     {GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8,
       GColorDarkGrayARGB8,GColorDarkGrayARGB8,GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8},
@@ -114,38 +138,114 @@ static  uint8_t plaidColor[6][5][8][12] = {
     {GColorOxfordBlueARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8,
       GColorWhiteARGB8,GColorBlueMoonARGB8,GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8},
     {GColorOxfordBlueARGB8, GColorCelesteARGB8, GColorDarkGrayARGB8, GColorCelesteARGB8, GColorDarkGrayARGB8,
-      GColorCelesteARGB8,GColorBlueMoonARGB8,GColorCelesteARGB8, GColorDarkGrayARGB8, GColorCelesteARGB8, GColorDarkGrayARGB8, GColorCelesteARGB8}}},
+      GColorCelesteARGB8,GColorBlueMoonARGB8,GColorCelesteARGB8, GColorDarkGrayARGB8, GColorCelesteARGB8, GColorDarkGrayARGB8, GColorCelesteARGB8}},
+      
+    {{GColorBlackARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8,
+      GColorWhiteARGB8,GColorDarkGrayARGB8,GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8},
+    {GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8,
+      GColorDarkGrayARGB8,GColorDarkGrayARGB8,GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8},
+    {GColorBlackARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8,
+      GColorWhiteARGB8,GColorDarkGrayARGB8,GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8},
+    {GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8,
+      GColorDarkGrayARGB8,GColorDarkGrayARGB8,GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8, GColorDarkGrayARGB8},
+    {GColorBlackARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8,
+      GColorWhiteARGB8,GColorDarkGrayARGB8,GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8},
+    {GColorBlackARGB8, GColorLightGrayARGB8, GColorDarkGrayARGB8, GColorLightGrayARGB8, GColorDarkGrayARGB8,
+      GColorLightGrayARGB8,GColorDarkGrayARGB8,GColorLightGrayARGB8, GColorDarkGrayARGB8, GColorLightGrayARGB8, GColorDarkGrayARGB8, GColorLightGrayARGB8}},
+      
+    {{GColorDarkGreenARGB8, GColorWhiteARGB8, GColorJaegerGreenARGB8, GColorWhiteARGB8, GColorJaegerGreenARGB8,
+      GColorWhiteARGB8,GColorJaegerGreenARGB8,GColorWhiteARGB8, GColorJaegerGreenARGB8, GColorWhiteARGB8, GColorJaegerGreenARGB8, GColorWhiteARGB8},
+    {GColorJaegerGreenARGB8, GColorJaegerGreenARGB8, GColorJaegerGreenARGB8, GColorJaegerGreenARGB8, GColorJaegerGreenARGB8,
+      GColorJaegerGreenARGB8,GColorJaegerGreenARGB8,GColorJaegerGreenARGB8, GColorJaegerGreenARGB8, GColorJaegerGreenARGB8, GColorJaegerGreenARGB8, GColorJaegerGreenARGB8},
+    {GColorDarkGreenARGB8, GColorWhiteARGB8, GColorJaegerGreenARGB8, GColorWhiteARGB8, GColorJaegerGreenARGB8,
+      GColorWhiteARGB8,GColorJaegerGreenARGB8,GColorWhiteARGB8, GColorJaegerGreenARGB8, GColorWhiteARGB8, GColorJaegerGreenARGB8, GColorWhiteARGB8},
+    {GColorJaegerGreenARGB8, GColorJaegerGreenARGB8, GColorJaegerGreenARGB8, GColorJaegerGreenARGB8, GColorJaegerGreenARGB8,
+      GColorJaegerGreenARGB8,GColorJaegerGreenARGB8,GColorJaegerGreenARGB8, GColorJaegerGreenARGB8, GColorJaegerGreenARGB8, GColorJaegerGreenARGB8, GColorJaegerGreenARGB8},
+    {GColorDarkGreenARGB8, GColorWhiteARGB8, GColorJaegerGreenARGB8, GColorWhiteARGB8, GColorJaegerGreenARGB8,
+      GColorWhiteARGB8,GColorJaegerGreenARGB8,GColorWhiteARGB8, GColorJaegerGreenARGB8, GColorWhiteARGB8, GColorJaegerGreenARGB8, GColorWhiteARGB8},
+    {GColorDarkGreenARGB8, GColorMintGreenARGB8, GColorJaegerGreenARGB8, GColorMintGreenARGB8, GColorJaegerGreenARGB8,
+      GColorMintGreenARGB8,GColorJaegerGreenARGB8,GColorMintGreenARGB8, GColorJaegerGreenARGB8, GColorMintGreenARGB8, GColorJaegerGreenARGB8, GColorMintGreenARGB8}},
+      
+    {{GColorDarkCandyAppleRedARGB8, GColorWhiteARGB8, GColorRedARGB8, GColorWhiteARGB8, GColorRedARGB8,
+      GColorWhiteARGB8,GColorRedARGB8,GColorWhiteARGB8, GColorRedARGB8, GColorWhiteARGB8, GColorRedARGB8, GColorWhiteARGB8},
+    {GColorRedARGB8, GColorRedARGB8, GColorRedARGB8, GColorRedARGB8, GColorRedARGB8,
+      GColorRedARGB8,GColorRedARGB8,GColorRedARGB8, GColorRedARGB8, GColorRedARGB8, GColorRedARGB8, GColorRedARGB8},
+    {GColorDarkCandyAppleRedARGB8, GColorWhiteARGB8, GColorRedARGB8, GColorWhiteARGB8, GColorRedARGB8,
+      GColorWhiteARGB8,GColorRedARGB8,GColorWhiteARGB8, GColorRedARGB8, GColorWhiteARGB8, GColorRedARGB8, GColorWhiteARGB8},
+    {GColorRedARGB8, GColorRedARGB8, GColorRedARGB8, GColorRedARGB8, GColorRedARGB8,
+      GColorRedARGB8,GColorRedARGB8,GColorRedARGB8, GColorRedARGB8, GColorRedARGB8, GColorRedARGB8, GColorRedARGB8},
+    {GColorDarkCandyAppleRedARGB8, GColorWhiteARGB8, GColorRedARGB8, GColorWhiteARGB8, GColorRedARGB8,
+      GColorWhiteARGB8,GColorRedARGB8,GColorWhiteARGB8, GColorRedARGB8, GColorWhiteARGB8, GColorRedARGB8, GColorWhiteARGB8},
+    {GColorDarkCandyAppleRedARGB8, GColorMelonARGB8, GColorRedARGB8, GColorMelonARGB8, GColorRedARGB8,
+      GColorMelonARGB8,GColorRedARGB8,GColorMelonARGB8, GColorRedARGB8, GColorMelonARGB8, GColorRedARGB8, GColorMelonARGB8}}
+    
+    },
       
     //Blue boxes
     {{{GColorBlueMoonARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8},
       {GColorBlueMoonARGB8, GColorPictonBlueARGB8, GColorBlackARGB8, GColorPictonBlueARGB8, GColorBlackARGB8, GColorPictonBlueARGB8 }
+    },
+       {{GColorBlackARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8},
+      {GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8 }
     },
     {{GColorDarkGreenARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8},
       {GColorDarkGreenARGB8, GColorMayGreenARGB8, GColorBlackARGB8, GColorMayGreenARGB8, GColorBlackARGB8, GColorMayGreenARGB8 }
     },
     {{GColorDarkCandyAppleRedARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8},
       {GColorDarkCandyAppleRedARGB8, GColorRichBrilliantLavenderARGB8, GColorBlackARGB8, GColorRichBrilliantLavenderARGB8, GColorBlackARGB8, GColorRichBrilliantLavenderARGB8 }
-    },
-       {{GColorArmyGreenARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8},
-      {GColorArmyGreenARGB8, GColorBrassARGB8, GColorBlackARGB8, GColorBrassARGB8, GColorBlackARGB8, GColorBrassARGB8 }
-    },
+    }
+      
     },
     
       //Blue and red
-     {{{GColorWhiteARGB8, GColorBlueARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorBlueARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
+     {{
+      {GColorWhiteARGB8, GColorBlueARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorBlueARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
        {GColorBlueARGB8, GColorOxfordBlueARGB8, GColorBlueARGB8, GColorBlackARGB8,GColorBlueARGB8, GColorOxfordBlueARGB8, GColorBlueARGB8, GColorOxfordBlueARGB8},
        {GColorWhiteARGB8, GColorBlueARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorBlueARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
        {GColorLightGrayARGB8, GColorOxfordBlueARGB8, GColorLightGrayARGB8,  GColorBlackARGB8, GColorLightGrayARGB8, GColorOxfordBlueARGB8, GColorLightGrayARGB8,GColorBlackARGB8},
        {GColorWhiteARGB8, GColorBlueARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorBlueARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
        {GColorBlueARGB8, GColorOxfordBlueARGB8, GColorBlueARGB8, GColorBlackARGB8,GColorBlueARGB8, GColorOxfordBlueARGB8, GColorBlueARGB8, GColorOxfordBlueARGB8},
        {GColorWhiteARGB8, GColorBlueARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorBlueARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
-       {GColorLightGrayARGB8, GColorOxfordBlueARGB8, GColorLightGrayARGB8, GColorBlackARGB8, GColorLightGrayARGB8, GColorOxfordBlueARGB8, GColorLightGrayARGB8, GColorOxfordBlueARGB8 }}} 
+       {GColorLightGrayARGB8, GColorOxfordBlueARGB8, GColorLightGrayARGB8, GColorBlackARGB8, GColorLightGrayARGB8, GColorOxfordBlueARGB8, GColorLightGrayARGB8, GColorOxfordBlueARGB8 }},
+       
+       {
+      {GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
+       {GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8,GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8},
+       {GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
+       {GColorLightGrayARGB8, GColorBlackARGB8, GColorLightGrayARGB8,  GColorBlackARGB8, GColorLightGrayARGB8, GColorBlackARGB8, GColorLightGrayARGB8,GColorBlackARGB8},
+       {GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
+       {GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8,GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8},
+       {GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
+       {GColorLightGrayARGB8, GColorBlackARGB8, GColorLightGrayARGB8, GColorBlackARGB8, GColorLightGrayARGB8, GColorBlackARGB8, GColorLightGrayARGB8, GColorBlackARGB8 }},
+       
+       {
+      {GColorWhiteARGB8, GColorKellyGreenARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorKellyGreenARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
+       {GColorKellyGreenARGB8, GColorDarkGreenARGB8, GColorKellyGreenARGB8, GColorBlackARGB8,GColorKellyGreenARGB8, GColorDarkGreenARGB8, GColorKellyGreenARGB8, GColorDarkGreenARGB8},
+       {GColorWhiteARGB8, GColorKellyGreenARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorKellyGreenARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
+       {GColorLightGrayARGB8, GColorDarkGreenARGB8, GColorLightGrayARGB8,  GColorBlackARGB8, GColorLightGrayARGB8, GColorDarkGreenARGB8, GColorLightGrayARGB8,GColorBlackARGB8},
+       {GColorWhiteARGB8, GColorKellyGreenARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorKellyGreenARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
+       {GColorKellyGreenARGB8, GColorDarkGreenARGB8, GColorKellyGreenARGB8, GColorBlackARGB8,GColorKellyGreenARGB8, GColorDarkGreenARGB8, GColorKellyGreenARGB8, GColorDarkGreenARGB8},
+       {GColorWhiteARGB8, GColorKellyGreenARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorKellyGreenARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
+       {GColorLightGrayARGB8, GColorDarkGreenARGB8, GColorLightGrayARGB8, GColorBlackARGB8, GColorLightGrayARGB8, GColorDarkGreenARGB8, GColorLightGrayARGB8, GColorDarkGreenARGB8 }},
+
+       {
+      {GColorWhiteARGB8, GColorJazzberryJamARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorJazzberryJamARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
+       {GColorJazzberryJamARGB8, GColorDarkCandyAppleRedARGB8, GColorJazzberryJamARGB8, GColorBlackARGB8,GColorJazzberryJamARGB8, GColorDarkCandyAppleRedARGB8, GColorJazzberryJamARGB8, GColorDarkCandyAppleRedARGB8},
+       {GColorWhiteARGB8, GColorJazzberryJamARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorJazzberryJamARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
+       {GColorLightGrayARGB8, GColorDarkCandyAppleRedARGB8, GColorLightGrayARGB8,  GColorBlackARGB8, GColorLightGrayARGB8, GColorDarkCandyAppleRedARGB8, GColorLightGrayARGB8,GColorBlackARGB8},
+       {GColorWhiteARGB8, GColorJazzberryJamARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorJazzberryJamARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
+       {GColorJazzberryJamARGB8, GColorDarkCandyAppleRedARGB8, GColorJazzberryJamARGB8, GColorBlackARGB8,GColorJazzberryJamARGB8, GColorDarkCandyAppleRedARGB8, GColorJazzberryJamARGB8, GColorDarkCandyAppleRedARGB8},
+       {GColorWhiteARGB8, GColorJazzberryJamARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorJazzberryJamARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
+       {GColorLightGrayARGB8, GColorDarkCandyAppleRedARGB8, GColorLightGrayARGB8, GColorBlackARGB8, GColorLightGrayARGB8, GColorDarkCandyAppleRedARGB8, GColorLightGrayARGB8, GColorDarkCandyAppleRedARGB8 }}
+
+     
+     } 
 };  
 
  int plaidWidth[6][2][12] = {
     //Gingham
-    {{20,20,20,20},
-    {20,20,20,20}},
+    {{20,20,20,20,20,20,20,20},
+    {20,20,20,20,20,20,20,20}},
     
     //Random
     {{20,2,20,2},
@@ -281,15 +381,15 @@ static void update_time() {
  // }
 
   // Display this time on the TextLayer
-//  text_layer_set_text(s_time_layer, buffer);
+  if (digitalWatch)
+    text_layer_set_text(s_time_layer, buffer);
+  else
     layer_mark_dirty(s_hands_layer);
-
 }
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
   curPlaidColor++;
-  if ( plaidColor[curPlaid][curPlaidColor][0][0] == 0)
-  //if (curPlaidColor >= (int) (sizeof(plaidColor[curPlaid]) / sizeof(plaidColor[curPlaid][0] ) ) )
+  if ( curPlaidColor > 3)
     curPlaidColor = 0;
   layer_mark_dirty(s_path_layer);
 }
@@ -298,7 +398,8 @@ static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
   curHandColor++;
   if (curHandColor >= (int) (sizeof(handColors) / sizeof(handColors[0] ) ) )
     curHandColor = 0;
-  layer_mark_dirty(s_hands_layer);
+  text_layer_set_text_color(s_time_layer, (GColor) handColors[curHandColor]);
+  update_time();
 }
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -333,7 +434,7 @@ static void window_load(Window *window) {
    // Create time TextLayer
   s_time_layer = text_layer_create(GRect(0, 60, 144, 50));
   text_layer_set_background_color(s_time_layer, GColorBlack);
-  text_layer_set_text_color(s_time_layer, GColorWhite);
+  text_layer_set_text_color(s_time_layer, (GColor) handColors[curHandColor]);
   text_layer_set_text(s_time_layer, "00:00");
 
   // Improve the layout to be more like a watchface
@@ -341,17 +442,18 @@ static void window_load(Window *window) {
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
 
   // Add it as a child layer to the Window's root layer
-  //layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
+  if (digitalWatch){
+    layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
   
-  // Make sure the time is displayed from the start
-  //update_time();
-  
-  //Add click handler
+    // Make sure the time is displayed from the start
+    update_time();
+  } else {
+    s_hands_layer = layer_create(bounds);
+    layer_set_update_proc(s_hands_layer, hands_update_proc);
+    layer_add_child(window_layer, s_hands_layer);
+  }
+  //Add click handler    
   window_set_click_config_provider(s_main_window, click_config_provider);
-  
-  s_hands_layer = layer_create(bounds);
-  layer_set_update_proc(s_hands_layer, hands_update_proc);
-  layer_add_child(window_layer, s_hands_layer);
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
