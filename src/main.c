@@ -2,13 +2,16 @@
  * main.c 
  * Creates a Window with a custom color. 
  * This hosts a Layer which draws a GPath in custom fill color.
+ *
+ * Copyright 2015 Matt Thompson All Rights Reserved
  */
 
 #include <pebble.h>
 
 static Window *s_main_window;
-static Layer *s_path_layer;
+static Layer *s_path_layer, *s_hands_layer;
 static TextLayer *s_time_layer;
+static GPath *s_minute_arrow, *s_hour_arrow;
 
 
 // GPath describes the shape
@@ -20,10 +23,35 @@ static GPathInfo PATH_INFO = {
 
 int curPlaid = 0;
 int curPlaidColor = 0;
+int curHandColor = 0;
+
+static const GPathInfo MINUTE_HAND_POINTS = {
+  4,
+  (GPoint []) {
+    { -4, 5 },
+    { 4, 5 },
+    { 4, -60 },
+    { -4, -60 }  
+  }
+};
+
+static const GPathInfo HOUR_HAND_POINTS = {
+  4, (GPoint []){
+    {-4, 5},
+    {4, 5},
+    {4, -40},
+    {-4, -40}, 
+  }
+};
 
 
-    
-static  uint8_t plaidColor[][4][6][12] = {
+static uint8_t handColors[] = {
+  GColorChromeYellowARGB8, GColorWhiteARGB8, GColorVividCeruleanARGB8, 
+  GColorScreaminGreenARGB8, GColorLightGrayARGB8, GColorBlackARGB8, GColorRedARGB8, GColorYellowARGB8
+};
+
+
+static  uint8_t plaidColor[6][5][8][12] = {
     //Gingham
     {{{GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8},
     {GColorLibertyARGB8, GColorWhiteARGB8, GColorLibertyARGB8, GColorPictonBlueARGB8},
@@ -89,12 +117,32 @@ static  uint8_t plaidColor[][4][6][12] = {
       GColorCelesteARGB8,GColorBlueMoonARGB8,GColorCelesteARGB8, GColorDarkGrayARGB8, GColorCelesteARGB8, GColorDarkGrayARGB8, GColorCelesteARGB8}}},
       
     //Blue boxes
-    {{{GColorBlueARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8},
-      {GColorBlueARGB8, GColorPictonBlueARGB8, GColorBlackARGB8, GColorPictonBlueARGB8, GColorBlackARGB8, GColorPictonBlueARGB8 }
-    }}
+    {{{GColorBlueMoonARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8},
+      {GColorBlueMoonARGB8, GColorPictonBlueARGB8, GColorBlackARGB8, GColorPictonBlueARGB8, GColorBlackARGB8, GColorPictonBlueARGB8 }
+    },
+    {{GColorDarkGreenARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8},
+      {GColorDarkGreenARGB8, GColorMayGreenARGB8, GColorBlackARGB8, GColorMayGreenARGB8, GColorBlackARGB8, GColorMayGreenARGB8 }
+    },
+    {{GColorDarkCandyAppleRedARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8},
+      {GColorDarkCandyAppleRedARGB8, GColorRichBrilliantLavenderARGB8, GColorBlackARGB8, GColorRichBrilliantLavenderARGB8, GColorBlackARGB8, GColorRichBrilliantLavenderARGB8 }
+    },
+       {{GColorArmyGreenARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8},
+      {GColorArmyGreenARGB8, GColorBrassARGB8, GColorBlackARGB8, GColorBrassARGB8, GColorBlackARGB8, GColorBrassARGB8 }
+    },
+    },
+    
+      //Blue and red
+     {{{GColorWhiteARGB8, GColorBlueARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorBlueARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
+       {GColorBlueARGB8, GColorOxfordBlueARGB8, GColorBlueARGB8, GColorBlackARGB8,GColorBlueARGB8, GColorOxfordBlueARGB8, GColorBlueARGB8, GColorOxfordBlueARGB8},
+       {GColorWhiteARGB8, GColorBlueARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorBlueARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
+       {GColorLightGrayARGB8, GColorOxfordBlueARGB8, GColorLightGrayARGB8,  GColorBlackARGB8, GColorLightGrayARGB8, GColorOxfordBlueARGB8, GColorLightGrayARGB8,GColorBlackARGB8},
+       {GColorWhiteARGB8, GColorBlueARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorBlueARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
+       {GColorBlueARGB8, GColorOxfordBlueARGB8, GColorBlueARGB8, GColorBlackARGB8,GColorBlueARGB8, GColorOxfordBlueARGB8, GColorBlueARGB8, GColorOxfordBlueARGB8},
+       {GColorWhiteARGB8, GColorBlueARGB8, GColorWhiteARGB8, GColorLightGrayARGB8, GColorWhiteARGB8, GColorBlueARGB8, GColorWhiteARGB8, GColorLightGrayARGB8},
+       {GColorLightGrayARGB8, GColorOxfordBlueARGB8, GColorLightGrayARGB8, GColorBlackARGB8, GColorLightGrayARGB8, GColorOxfordBlueARGB8, GColorLightGrayARGB8, GColorOxfordBlueARGB8 }}} 
 };  
 
- int plaidWidth[][2][12] = {
+ int plaidWidth[6][2][12] = {
     //Gingham
     {{20,20,20,20},
     {20,20,20,20}},
@@ -113,7 +161,12 @@ static  uint8_t plaidColor[][4][6][12] = {
    
     //Blue boxes
     {{14,2,2,14,2,2},
-    {14,14}}
+    {14,14}},
+    
+      //Blue and red
+    {{6,6,6,6,6,6,6,80},
+    {6,6,6,6,6,6,6,80}}
+    
   };  
   
 static void plaid(GContext *ctx){
@@ -152,7 +205,10 @@ static void plaid(GContext *ctx){
         curW = 0;
         curColorRow++;
         curColorCol = 0;
-        if (curColorRow >= (int) (sizeof(plaidColor[curPlaid][curPlaidColor]) / sizeof(plaidColor[curPlaid][curPlaidColor][0] ) ) ){
+       /* if (curColorRow >= (int) (sizeof(plaidColor[curPlaid][curPlaidColor]) / sizeof(plaidColor[curPlaid][curPlaidColor][0] ) ) ){
+          curColorRow = 0;  
+        }*/
+        if ( plaidColor[curPlaid][curPlaidColor][curColorRow][0] == 0){
           curColorRow = 0;  
         }
         
@@ -165,6 +221,41 @@ static void plaid(GContext *ctx){
     
   }
 }
+
+
+static void hands_update_proc(Layer *layer, GContext *ctx) {
+  GRect bounds = layer_get_bounds(layer);
+  GPoint center = grect_center_point(&bounds);
+  
+  time_t now = time(NULL);
+  struct tm *t = localtime(&now); 
+  
+  graphics_context_set_fill_color(ctx, GColorBlack);
+  graphics_fill_circle(ctx, center, 10);
+
+  
+
+  // minute/hour hand
+  graphics_context_set_fill_color(ctx, (GColor) handColors[curHandColor]);
+  graphics_context_set_stroke_color(ctx, GColorBlack);
+  graphics_context_set_stroke_width(ctx, 2);
+
+  gpath_rotate_to(s_minute_arrow, TRIG_MAX_ANGLE * t->tm_min / 60);
+  gpath_draw_filled(ctx, s_minute_arrow);
+  gpath_draw_outline(ctx, s_minute_arrow);
+
+  gpath_rotate_to(s_hour_arrow, (TRIG_MAX_ANGLE * (((t->tm_hour % 12) * 6) + (t->tm_min / 10))) / (12 * 6));
+  gpath_draw_filled(ctx, s_hour_arrow);
+  gpath_draw_outline(ctx, s_hour_arrow);
+  
+
+
+  // dot in the middle
+  //graphics_context_set_fill_color(ctx, GColorBlack);
+  //graphics_fill_rect(ctx, GRect(bounds.size.w / 2 - 1, bounds.size.h / 2 - 1, 3, 3), 0, GCornerNone);
+  graphics_fill_circle(ctx, center, 7);
+}
+
 
 static void layer_update_proc(Layer *layer, GContext *ctx) {
   plaid(ctx);
@@ -190,7 +281,9 @@ static void update_time() {
  // }
 
   // Display this time on the TextLayer
-  text_layer_set_text(s_time_layer, buffer);
+//  text_layer_set_text(s_time_layer, buffer);
+    layer_mark_dirty(s_hands_layer);
+
 }
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -202,12 +295,16 @@ static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
 }
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
+  curHandColor++;
+  if (curHandColor >= (int) (sizeof(handColors) / sizeof(handColors[0] ) ) )
+    curHandColor = 0;
+  layer_mark_dirty(s_hands_layer);
 }
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   curPlaid++;
   curPlaidColor = 0;
-  if (curPlaid > 4){
+  if (curPlaid > 5){
     curPlaid = 0;
   }
   layer_mark_dirty(s_path_layer);
@@ -244,13 +341,17 @@ static void window_load(Window *window) {
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
 
   // Add it as a child layer to the Window's root layer
-  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
+  //layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
   
   // Make sure the time is displayed from the start
-  update_time();
+  //update_time();
   
   //Add click handler
   window_set_click_config_provider(s_main_window, click_config_provider);
+  
+  s_hands_layer = layer_create(bounds);
+  layer_set_update_proc(s_hands_layer, hands_update_proc);
+  layer_add_child(window_layer, s_hands_layer);
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
@@ -278,6 +379,16 @@ static void init(void) {
   
   // Register with TickTimerService
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+  
+  s_minute_arrow = gpath_create(&MINUTE_HAND_POINTS);
+
+  s_hour_arrow = gpath_create(&HOUR_HAND_POINTS);
+  
+  Layer *window_layer = window_get_root_layer(s_main_window);
+  GRect bounds = layer_get_bounds(window_layer);
+  GPoint center = grect_center_point(&bounds);
+  gpath_move_to(s_minute_arrow, center);
+  gpath_move_to(s_hour_arrow, center);
 }
 
 static void deinit(void) {
