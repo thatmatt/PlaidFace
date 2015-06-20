@@ -310,10 +310,11 @@ static void plaid(GContext *ctx){
         curW = 0;
         curColorRow++;
         curColorCol = 0;
-       /* if (curColorRow >= (int) (sizeof(plaidColor[curPlaid][curPlaidColor]) / sizeof(plaidColor[curPlaid][curPlaidColor][0] ) ) ){
+        if (curColorRow >= (int) (sizeof(plaidColor[curPlaid][curPlaidColor]) / sizeof(plaidColor[curPlaid][curPlaidColor][0] ) ) ){
           curColorRow = 0;  
-        }*/
-        if ( plaidColor[curPlaid][curPlaidColor][curColorRow][0] == 0){
+        } else 
+        //C arrays fill with zeros. Need to check for array both ways until switched to use pointers
+          if ( plaidColor[curPlaid][curPlaidColor][curColorRow][0] == 0){
           curColorRow = 0;  
         }
         
