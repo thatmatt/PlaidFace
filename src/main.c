@@ -10,6 +10,7 @@
 #define CUR_PLAID 0
 #define CUR_PLAID_COLOR 1
 #define CUR_HAND_COLOR 2
+#define WATCH_MODE 3
 
 static Window *s_main_window;
 static Layer *s_path_layer, *s_hands_layer;
@@ -28,6 +29,7 @@ int curPlaid = 0;
 int curPlaidColor = 0;
 int curHandColor = 0;
 bool digitalWatch = true;
+int watchMode = 0;
 
 static const GPathInfo MINUTE_HAND_POINTS = {
   4,
@@ -435,7 +437,21 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         APP_LOG(APP_LOG_LEVEL_INFO, "CUR_HAND_COLOR received with value %d", (int)t->value->int32);
         curHandColor = (int)t->value->int32;
         break;
+      case WATCH_MODE:
+        APP_LOG(APP_LOG_LEVEL_INFO, "WATCH_MODE received with value %d", (int)t->value->int32);
+        watchMode = (int)t->value->int32;
+        break;
     }
+    //ANALOG =0, DIGITAL = 1
+    if (watchMode == 0){
+          layer_set_hidden(s_hands_layer, false);
+          layer_set_hidden(text_layer_get_layer(s_time_layer), true);
+    } else {
+          layer_set_hidden(s_hands_layer, true);
+          layer_set_hidden(text_layer_get_layer(s_time_layer), false);
+    }
+    
+    
     text_layer_set_text_color(s_time_layer, (GColor) handColors[curHandColor]);
     layer_mark_dirty(s_path_layer);
 
@@ -489,16 +505,23 @@ static void window_load(Window *window) {
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
 
   // Add it as a child layer to the Window's root layer
-  if (digitalWatch){
+  //if (digitalWatch){
     layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
   
     // Make sure the time is displayed from the start
     update_time();
-  } else {
+ // } else {
     s_hands_layer = layer_create(bounds);
     layer_set_update_proc(s_hands_layer, hands_update_proc);
     layer_add_child(window_layer, s_hands_layer);
-  }
+//  }
+  
+  if (digitalWatch)
+    layer_set_hidden(s_hands_layer, true);
+  else
+    layer_set_hidden(text_layer_get_layer(s_time_layer), true);
+
+  
   //Add click handler    
   window_set_click_config_provider(s_main_window, click_config_provider);
   

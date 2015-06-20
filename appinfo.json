@@ -2,7 +2,8 @@
     "appKeys": {
         "CUR_HAND_COLOR": 2,
         "CUR_PLAID": 0,
-        "CUR_PLAID_COLOR": 1
+        "CUR_PLAID_COLOR": 1,
+        "WATCH_MODE": 3
     },
     "capabilities": [
         "configurable"
@@ -21,6 +22,6 @@
     "uuid": "6a563fa4-5fcb-454f-8986-952d5546b75a",
     "versionLabel": "1.0",
     "watchapp": {
-        "watchface": false
+        "watchface": true
     }
 }
