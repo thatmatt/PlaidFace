@@ -7,6 +7,9 @@
  */
 
 #include <pebble.h>
+#define CUR_PLAID 0
+#define CUR_PLAID_COLOR 1
+#define CUR_HAND_COLOR 2
 
 static Window *s_main_window;
 static Layer *s_path_layer, *s_hands_layer;
@@ -24,7 +27,7 @@ static GPathInfo PATH_INFO = {
 int curPlaid = 0;
 int curPlaidColor = 0;
 int curHandColor = 0;
-bool digitalWatch = false;
+bool digitalWatch = true;
 
 static const GPathInfo MINUTE_HAND_POINTS = {
   4,
@@ -411,6 +414,50 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   layer_mark_dirty(s_path_layer);
 }
 
+static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
+  APP_LOG(APP_LOG_LEVEL_INFO, "Message received!");
+  // Get the first pair
+  Tuple *t = dict_read_first(iterator);
+
+  // Process all pairs present
+  while(t != NULL) {
+    // Process this pair's key
+    switch (t->key) {
+      case CUR_PLAID:
+        APP_LOG(APP_LOG_LEVEL_INFO, "CUR_PLAID received with value %d", (int)t->value->int32);
+        curPlaid = (int)t->value->int32;
+        break;
+      case CUR_PLAID_COLOR:
+        APP_LOG(APP_LOG_LEVEL_INFO, "CUR_PLAID_COLOR received with value %d", (int)t->value->int32);
+        curPlaidColor = (int)t->value->int32;
+        break;
+      case CUR_HAND_COLOR:
+        APP_LOG(APP_LOG_LEVEL_INFO, "CUR_HAND_COLOR received with value %d", (int)t->value->int32);
+        curHandColor = (int)t->value->int32;
+        break;
+    }
+    text_layer_set_text_color(s_time_layer, (GColor) handColors[curHandColor]);
+    layer_mark_dirty(s_path_layer);
+
+
+    // Get next pair, if any
+    t = dict_read_next(iterator);
+  }
+}
+
+static void inbox_dropped_callback(AppMessageResult reason, void *context) {
+  APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped!");
+}
+
+static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
+  APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
+}
+
+static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
+  APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
+}
+
+
 static void click_config_provider(void *context) {
   // Register the ClickHandlers
   window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
@@ -454,6 +501,7 @@ static void window_load(Window *window) {
   }
   //Add click handler    
   window_set_click_config_provider(s_main_window, click_config_provider);
+  
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
@@ -491,6 +539,12 @@ static void init(void) {
   GPoint center = grect_center_point(&bounds);
   gpath_move_to(s_minute_arrow, center);
   gpath_move_to(s_hour_arrow, center);
+  //Add message callbacks
+  app_message_register_inbox_received(inbox_received_callback);
+  app_message_register_inbox_dropped(inbox_dropped_callback);
+  app_message_register_outbox_failed(outbox_failed_callback);
+  app_message_register_outbox_sent(outbox_sent_callback);
+  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 }
 
 static void deinit(void) {

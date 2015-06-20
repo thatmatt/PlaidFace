@@ -1,7 +1,11 @@
 {
-    "appKeys": {},
+    "appKeys": {
+        "CUR_HAND_COLOR": 2,
+        "CUR_PLAID": 0,
+        "CUR_PLAID_COLOR": 1
+    },
     "capabilities": [
-        ""
+        "configurable"
     ],
     "companyName": "thatmatt@yahoo.com",
     "longName": "PlaidFace",
