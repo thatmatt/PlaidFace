@@ -517,7 +517,7 @@ static void window_load(Window *window) {
     layer_add_child(window_layer, s_hands_layer);
 //  }
   
-  if (digitalWatch)
+  if (watchMode == 1)
     layer_set_hidden(s_hands_layer, true);
   else
     layer_set_hidden(text_layer_get_layer(s_time_layer), true);
@@ -539,6 +539,12 @@ static void window_unload(Window *window) {
 }
 
 static void init(void) {
+  //Pull values from saved data
+  curPlaid = persist_exists(CUR_PLAID) ? persist_read_int(CUR_PLAID) : 0;
+  curPlaidColor = persist_exists(CUR_PLAID_COLOR) ? persist_read_int(CUR_PLAID_COLOR) : 0;
+  curHandColor = persist_exists(CUR_HAND_COLOR) ? persist_read_int(CUR_HAND_COLOR) : 0;
+  watchMode = persist_exists(WATCH_MODE) ? persist_read_int(WATCH_MODE) : 0;
+ 
   // Create main Window
   s_main_window = window_create();
 
@@ -574,6 +580,10 @@ static void init(void) {
 static void deinit(void) {
   // Destroy main Window
   window_destroy(s_main_window);
+  persist_write_int(CUR_PLAID, curPlaid);
+  persist_write_int(CUR_PLAID_COLOR, curPlaidColor);
+  persist_write_int(CUR_HAND_COLOR, curHandColor);
+  persist_write_int(WATCH_MODE, watchMode);
 }
 
 int main(void) {

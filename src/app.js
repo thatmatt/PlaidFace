@@ -1,6 +1,6 @@
 Pebble.addEventListener('showConfiguration', function() {
   var options = window.localStorage.getItem('options');
-  Pebble.openURL('http://192.168.29.111/pebble.html?options='+options);
+  Pebble.openURL('http://thatmatt.github.io/pebble.html?options='+options);
 });
 
 Pebble.addEventListener('webviewclosed', function(f) {
