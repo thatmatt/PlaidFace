@@ -8,11 +8,18 @@
     "capabilities": [
         "configurable"
     ],
-    "companyName": "thatmatt@yahoo.com",
+    "companyName": "thatmatt",
     "longName": "PlaidFace",
     "projectType": "native",
     "resources": {
-        "media": []
+        "media": [
+            {
+                "file": "images/blue_gingham_orange_analog_28.png",
+                "menuIcon": true,
+                "name": "PNG28",
+                "type": "png"
+            }
+        ]
     },
     "sdkVersion": "3",
     "shortName": "PlaidFace",

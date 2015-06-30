@@ -123,12 +123,20 @@ static  uint8_t plaidColor[][4][8][12] = {
     
     },
       
-    //Stripes  
+    //White Stripes  
     {{{ GColorDarkGrayARGB8, GColorBlackARGB8,  GColorDarkGrayARGB8, GColorWhiteARGB8, GColorVividCeruleanARGB8, GColorWhiteARGB8}},
     {{ GColorBlackARGB8, GColorBlackARGB8,  GColorDarkGrayARGB8, GColorWhiteARGB8, GColorBlackARGB8, GColorWhiteARGB8}},
     {{ GColorDarkGrayARGB8, GColorBlackARGB8,  GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGreenARGB8, GColorWhiteARGB8}},
     {{ GColorDarkGrayARGB8, GColorBlackARGB8,  GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkCandyAppleRedARGB8, GColorWhiteARGB8}},
     },
+      
+    //Black Stripes
+    {{{ GColorDarkGrayARGB8, GColorBlackARGB8,  GColorDarkGrayARGB8, GColorBlackARGB8, GColorVividCeruleanARGB8, GColorBlackARGB8}},
+    {{ GColorBlackARGB8, GColorBlackARGB8,  GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGrayARGB8, GColorBlackARGB8}},
+    {{ GColorDarkGrayARGB8, GColorBlackARGB8,  GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkGreenARGB8, GColorBlackARGB8}},
+    {{ GColorDarkGrayARGB8, GColorBlackARGB8,  GColorDarkGrayARGB8, GColorBlackARGB8, GColorDarkCandyAppleRedARGB8, GColorBlackARGB8}},
+    },
+    
     
     //Grid
     {
@@ -247,7 +255,7 @@ static  uint8_t plaidColor[][4][8][12] = {
      } 
 };  
 
- int plaidWidth[6][2][12] = {
+ int plaidWidth[7][2][12] = {
     //Gingham
     {{20,20,20,20,20,20,20,20},
     {20,20,20,20,20,20,20,20}},
@@ -256,7 +264,11 @@ static  uint8_t plaidColor[][4][8][12] = {
     {{20,2,20,2},
     {20,2,20,2}},
       
-    //Vertical Stripes  
+    //White Stripes  
+    {{1,1,1,4,4,4},
+    {168,168,168,168}},
+      
+    //Black Stripes  
     {{1,1,1,4,4,4},
     {168,168,168,168}},
     
