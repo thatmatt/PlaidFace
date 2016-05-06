@@ -12,6 +12,7 @@
 #define CUR_HAND_COLOR 2
 #define WATCH_MODE 3
 #define CAL_DATE 4
+#define BL_DETECT 5
 
 static Window *s_main_window;
 static Layer *s_path_layer, *s_hands_layer;
@@ -33,6 +34,8 @@ int curHandColor = 0;
 bool digitalWatch = true;
 int watchMode = 0;
 int calDate = 0;
+bool bluetoothOn = true;
+int blDetect = 0;
 
 static const GPathInfo MINUTE_HAND_POINTS = {
   4,
@@ -477,7 +480,11 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
        case CAL_DATE:
         APP_LOG(APP_LOG_LEVEL_INFO, "CAL_DATE received with value %d", (int)t->value->int32);
         calDate = (int)t->value->int32;
-        break;   }
+        break;
+      case BL_DETECT:
+        APP_LOG(APP_LOG_LEVEL_INFO, "BL_DETECT received with value %d", (int)t->value->int32);
+        blDetect = (int)t->value->int32;
+        break;}
     //ANALOG =0, DIGITAL = 1
     if (watchMode == 0){
           layer_set_hidden(s_hands_layer, false);
@@ -591,6 +598,20 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_time();
 }
 
+static void bluetooth_callback(bool connected) {
+  if(!connected && bluetoothOn) {
+      // Issue a vibrating alert
+      if (blDetect)
+        vibes_double_pulse();
+      bluetoothOn = false;
+    }
+  if (connected && !bluetoothOn){
+      if (blDetect)
+        vibes_short_pulse();
+      bluetoothOn = true;
+  }
+}
+
 static void window_unload(Window *window) {
   // Destroy layer and path
   layer_destroy(s_path_layer);
@@ -604,6 +625,7 @@ static void init(void) {
   curHandColor = persist_exists(CUR_HAND_COLOR) ? persist_read_int(CUR_HAND_COLOR) : 0;
   watchMode = persist_exists(WATCH_MODE) ? persist_read_int(WATCH_MODE) : 0;
   calDate = persist_exists(CAL_DATE) ? persist_read_int(CAL_DATE) : 0;
+  blDetect = persist_exists(BL_DETECT) ? persist_read_int(BL_DETECT) : 0;
 
   // Create main Window
   s_main_window = window_create();
@@ -635,6 +657,10 @@ static void init(void) {
   app_message_register_outbox_failed(outbox_failed_callback);
   app_message_register_outbox_sent(outbox_sent_callback);
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+  
+  connection_service_subscribe((ConnectionHandlers) {
+  .pebble_app_connection_handler = bluetooth_callback
+});
 }
 
 static void deinit(void) {
@@ -645,6 +671,7 @@ static void deinit(void) {
   persist_write_int(CUR_HAND_COLOR, curHandColor);
   persist_write_int(WATCH_MODE, watchMode);
   persist_write_int(CAL_DATE, calDate);
+  persist_write_int(BL_DETECT, blDetect);
 
 }
 

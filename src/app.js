@@ -21,6 +21,7 @@ Pebble.addEventListener('webviewclosed', function(f) {
   var curHandColor = encodeURIComponent(options.curHandColor);
   var watchMode = encodeURIComponent(options.watchMode);
   var calDate = encodeURIComponent(options.calDate);
+  var blDetect = encodeURIComponent(options.blDetect);
 
   window.localStorage.setItem('options7', f.response);
   var transactionId = Pebble.sendAppMessage( 
@@ -30,6 +31,7 @@ Pebble.addEventListener('webviewclosed', function(f) {
       'CUR_HAND_COLOR': parseInt(curHandColor,10),
       'WATCH_MODE': parseInt(watchMode,10),
       'CAL_DATE': parseInt(calDate,10),
+      'BL_DETECT': parseInt(blDetect,10),
     },
   function(e) {
     console.log('Successfully delivered message with transactionId='

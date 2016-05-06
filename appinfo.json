@@ -1,5 +1,6 @@
 {
     "appKeys": {
+        "BL_DETECT": 5,
         "CAL_DATE": 4,
         "CUR_HAND_COLOR": 2,
         "CUR_PLAID": 0,
