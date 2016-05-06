@@ -11,10 +11,12 @@
 #define CUR_PLAID_COLOR 1
 #define CUR_HAND_COLOR 2
 #define WATCH_MODE 3
+#define CAL_DATE 4
 
 static Window *s_main_window;
 static Layer *s_path_layer, *s_hands_layer;
 static TextLayer *s_time_layer;
+static TextLayer *s_date_layer;
 static GPath *s_minute_arrow, *s_hour_arrow;
 
 
@@ -30,6 +32,7 @@ int curPlaidColor = 0;
 int curHandColor = 0;
 bool digitalWatch = true;
 int watchMode = 0;
+int calDate = 0;
 
 static const GPathInfo MINUTE_HAND_POINTS = {
   4,
@@ -252,10 +255,16 @@ static  uint8_t plaidColor[][4][8][12] = {
        {GColorLightGrayARGB8, GColorDarkCandyAppleRedARGB8, GColorLightGrayARGB8, GColorBlackARGB8, GColorLightGrayARGB8, GColorDarkCandyAppleRedARGB8, GColorLightGrayARGB8, GColorDarkCandyAppleRedARGB8 }}
 
      
-     } 
+     },
+    //Wide Veritcal Stripes
+    {{{ GColorBlackARGB8,  GColorCobaltBlueARGB8, GColorBlackARGB8, GColorCobaltBlueARGB8, GColorBlackARGB8}},
+    {{ GColorBlackARGB8,  GColorLightGrayARGB8, GColorBlackARGB8, GColorLightGrayARGB8, GColorBlackARGB8}},
+    {{ GColorBlackARGB8,  GColorMayGreenARGB8, GColorBlackARGB8, GColorMayGreenARGB8, GColorBlackARGB8}},
+    {{ GColorBlackARGB8, GColorDarkCandyAppleRedARGB8, GColorBlackARGB8, GColorDarkCandyAppleRedARGB8, GColorBlackARGB8}},
+    },
 };  
 
- int plaidWidth[7][2][12] = {
+ int plaidWidth[8][2][12] = {
     //Gingham
     {{20,20,20,20,20,20,20,20},
     {20,20,20,20,20,20,20,20}},
@@ -282,8 +291,11 @@ static  uint8_t plaidColor[][4][8][12] = {
     
       //Blue and red
     {{6,6,6,6,6,6,6,80},
-    {6,6,6,6,6,6,6,80}}
-    
+    {6,6,6,6,6,6,6,80}},
+
+    //Wide vertical grid
+    {{30,28,28,28,30},
+    {168,168,168,168}}
   };  
   
 static void plaid(GContext *ctx){
@@ -338,8 +350,14 @@ static void plaid(GContext *ctx){
       }      
     
   }
+  
+  //Draw date circle, if needed
+  if (calDate == 1){
+    graphics_context_set_fill_color(ctx, GColorBlack);
+    graphics_fill_circle(ctx, GPoint(72, 166), 18);
+  }
+    
 }
-
 
 static void hands_update_proc(Layer *layer, GContext *ctx) {
   GRect bounds = layer_get_bounds(layer);
@@ -350,8 +368,6 @@ static void hands_update_proc(Layer *layer, GContext *ctx) {
   
   graphics_context_set_fill_color(ctx, GColorBlack);
   graphics_fill_circle(ctx, center, 10);
-
-  
 
   // minute/hour hand
   graphics_context_set_fill_color(ctx, (GColor) handColors[curHandColor]);
@@ -365,8 +381,6 @@ static void hands_update_proc(Layer *layer, GContext *ctx) {
   gpath_rotate_to(s_hour_arrow, (TRIG_MAX_ANGLE * (((t->tm_hour % 12) * 6) + (t->tm_min / 10))) / (12 * 6));
   gpath_draw_filled(ctx, s_hour_arrow);
   gpath_draw_outline(ctx, s_hour_arrow);
-  
-
 
   // dot in the middle
   //graphics_context_set_fill_color(ctx, GColorBlack);
@@ -397,6 +411,12 @@ static void update_time() {
   if (buffer[0] == '0')
     buffer[0] = ' ';
  // }
+  
+  //Set date
+  text_layer_set_text_color(s_date_layer, (GColor) handColors[curHandColor]);
+  static char date_str[] = "  ";
+  snprintf(date_str, sizeof(date_str), "%d", tick_time->tm_mday);
+  text_layer_set_text(s_date_layer, date_str );
 
   // Display this time on the TextLayer
   if (digitalWatch)
@@ -454,7 +474,10 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         APP_LOG(APP_LOG_LEVEL_INFO, "WATCH_MODE received with value %d", (int)t->value->int32);
         watchMode = (int)t->value->int32;
         break;
-    }
+       case CAL_DATE:
+        APP_LOG(APP_LOG_LEVEL_INFO, "CAL_DATE received with value %d", (int)t->value->int32);
+        calDate = (int)t->value->int32;
+        break;   }
     //ANALOG =0, DIGITAL = 1
     if (watchMode == 0){
           layer_set_hidden(s_hands_layer, false);
@@ -464,8 +487,17 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
           layer_set_hidden(text_layer_get_layer(s_time_layer), false);
     }
     
+    //Show date layer?
+    
+  if (calDate == 0){
+    layer_set_hidden(text_layer_get_layer(s_date_layer), true);
+  } else {
+    layer_set_hidden(text_layer_get_layer(s_date_layer), false);
+  }
+    
     
     text_layer_set_text_color(s_time_layer, (GColor) handColors[curHandColor]);
+    text_layer_set_text_color(s_date_layer, (GColor) handColors[curHandColor]);
     layer_mark_dirty(s_path_layer);
 
 
@@ -517,6 +549,15 @@ static void window_load(Window *window) {
   text_layer_set_font(s_time_layer, fonts_get_system_font(FONT_KEY_LECO_38_BOLD_NUMBERS));
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
 
+  // Create date TextLayer
+  s_date_layer = text_layer_create(GRect(0, 149, 144, 19));
+  text_layer_set_background_color(s_date_layer, GColorClear);
+  text_layer_set_text_color(s_date_layer, (GColor) handColors[curHandColor]);
+  text_layer_set_text(s_date_layer, "28");
+
+  // Improve the layout to be more like a watchface
+  text_layer_set_font(s_date_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
+  text_layer_set_text_alignment(s_date_layer, GTextAlignmentCenter);
   // Add it as a child layer to the Window's root layer
   //if (digitalWatch){
     layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
@@ -527,6 +568,7 @@ static void window_load(Window *window) {
     s_hands_layer = layer_create(bounds);
     layer_set_update_proc(s_hands_layer, hands_update_proc);
     layer_add_child(window_layer, s_hands_layer);
+    layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_date_layer));
 //  }
   
   if (watchMode == 1)
@@ -534,6 +576,11 @@ static void window_load(Window *window) {
   else
     layer_set_hidden(text_layer_get_layer(s_time_layer), true);
 
+  if (calDate == 0){
+    layer_set_hidden(text_layer_get_layer(s_date_layer), true);
+  } else {
+    layer_set_hidden(text_layer_get_layer(s_date_layer), false);
+  }
   
   //Add click handler    
   window_set_click_config_provider(s_main_window, click_config_provider);
@@ -556,7 +603,8 @@ static void init(void) {
   curPlaidColor = persist_exists(CUR_PLAID_COLOR) ? persist_read_int(CUR_PLAID_COLOR) : 0;
   curHandColor = persist_exists(CUR_HAND_COLOR) ? persist_read_int(CUR_HAND_COLOR) : 0;
   watchMode = persist_exists(WATCH_MODE) ? persist_read_int(WATCH_MODE) : 0;
- 
+  calDate = persist_exists(CAL_DATE) ? persist_read_int(CAL_DATE) : 0;
+
   // Create main Window
   s_main_window = window_create();
 
@@ -596,6 +644,8 @@ static void deinit(void) {
   persist_write_int(CUR_PLAID_COLOR, curPlaidColor);
   persist_write_int(CUR_HAND_COLOR, curHandColor);
   persist_write_int(WATCH_MODE, watchMode);
+  persist_write_int(CAL_DATE, calDate);
+
 }
 
 int main(void) {

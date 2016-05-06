@@ -1,23 +1,35 @@
 Pebble.addEventListener('showConfiguration', function() {
-  var options = window.localStorage.getItem('options');
-  Pebble.openURL('http://thatmatt.github.io/pebble.html?options='+options);
+  var options = window.localStorage.getItem('options7');
+  console.log(options);
+  console.log("Entering settings for PlaidFace");
+  Pebble.openURL('http://thatmatt.github.io/pebble2.html?options='+encodeURIComponent(options));
+  
+  Pebble.getTimelineToken(
+  function (token) {
+    console.log('My timeline token is ' + token);
+  },
+  function (error) { 
+    console.log('Error getting timeline token: ' + error);
+  }
+);
 });
 
 Pebble.addEventListener('webviewclosed', function(f) {
   var options = JSON.parse(decodeURIComponent(f.response));
-  console.log(options);
   var curPlaid = encodeURIComponent(options.curPlaid);
   var curPlaidColor = encodeURIComponent(options.curPlaidColor);
   var curHandColor = encodeURIComponent(options.curHandColor);
   var watchMode = encodeURIComponent(options.watchMode);
+  var calDate = encodeURIComponent(options.calDate);
 
-  window.localStorage.setItem('options', f.response);
+  window.localStorage.setItem('options7', f.response);
   var transactionId = Pebble.sendAppMessage( 
     { 
       'CUR_PLAID': parseInt(curPlaid,10),
       'CUR_PLAID_COLOR': parseInt(curPlaidColor,10),
       'CUR_HAND_COLOR': parseInt(curHandColor,10),
       'WATCH_MODE': parseInt(watchMode,10),
+      'CAL_DATE': parseInt(calDate,10),
     },
   function(e) {
     console.log('Successfully delivered message with transactionId='

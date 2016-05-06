@@ -1,5 +1,6 @@
 {
     "appKeys": {
+        "CAL_DATE": 4,
         "CUR_HAND_COLOR": 2,
         "CUR_PLAID": 0,
         "CUR_PLAID_COLOR": 1,
@@ -9,6 +10,7 @@
         "configurable"
     ],
     "companyName": "thatmatt",
+    "enableMultiJS": false,
     "longName": "PlaidFace",
     "projectType": "native",
     "resources": {
@@ -17,7 +19,7 @@
                 "file": "images/blue_gingham_orange_analog_28.png",
                 "menuIcon": true,
                 "name": "PNG28",
-                "type": "png"
+                "type": "bitmap"
             }
         ]
     },
@@ -27,7 +29,7 @@
         "basalt"
     ],
     "uuid": "6a563fa4-5fcb-454f-8986-952d5546b75a",
-    "versionLabel": "1.0",
+    "versionLabel": "1.11",
     "watchapp": {
         "watchface": true
     }
