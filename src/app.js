@@ -28,7 +28,7 @@ Pebble.addEventListener('webviewclosed', function(f) {
     { 
       'CUR_PLAID': parseInt(curPlaid,10),
       'CUR_PLAID_COLOR': parseInt(curPlaidColor,10),
-      'CUR_HAND_COLOR': parseInt(curHandColor,10),
+      'CUR_HAND_COLOR': parseInt(curHandColor,16),
       'WATCH_MODE': parseInt(watchMode,10),
       'CAL_DATE': parseInt(calDate,10),
       'BL_DETECT': parseInt(blDetect,10),

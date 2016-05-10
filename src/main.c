@@ -56,13 +56,6 @@ static const GPathInfo HOUR_HAND_POINTS = {
   }
 };
 
-
-static uint8_t handColors[] = {
-  GColorChromeYellowARGB8, GColorWhiteARGB8, GColorVividCeruleanARGB8, 
-  GColorScreaminGreenARGB8, GColorLightGrayARGB8, GColorBlackARGB8, GColorRedARGB8, GColorYellowARGB8
-};
-
-
 static  uint8_t plaidColor[][4][8][12] = {
     //Gingham
     {{{GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8,GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8},
@@ -98,7 +91,7 @@ static  uint8_t plaidColor[][4][8][12] = {
     
     },
       
-    //Random
+    //Grid
     {{{GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8},
     {GColorLibertyARGB8, GColorWhiteARGB8, GColorLibertyARGB8, GColorPictonBlueARGB8},
     {GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8},
@@ -373,7 +366,7 @@ static void hands_update_proc(Layer *layer, GContext *ctx) {
   graphics_fill_circle(ctx, center, 10);
 
   // minute/hour hand
-  graphics_context_set_fill_color(ctx, (GColor) handColors[curHandColor]);
+  graphics_context_set_fill_color(ctx,  GColorFromHEX(curHandColor));
   graphics_context_set_stroke_color(ctx, GColorBlack);
   graphics_context_set_stroke_width(ctx, 2);
 
@@ -416,7 +409,7 @@ static void update_time() {
  // }
   
   //Set date
-  text_layer_set_text_color(s_date_layer, (GColor) handColors[curHandColor]);
+  text_layer_set_text_color(s_date_layer,  GColorFromHEX(curHandColor));
   static char date_str[] = "  ";
   snprintf(date_str, sizeof(date_str), "%d", tick_time->tm_mday);
   text_layer_set_text(s_date_layer, date_str );
@@ -426,30 +419,6 @@ static void update_time() {
     text_layer_set_text(s_time_layer, buffer);
   else
     layer_mark_dirty(s_hands_layer);
-}
-
-static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
-  curPlaidColor++;
-  if ( curPlaidColor > 3)
-    curPlaidColor = 0;
-  layer_mark_dirty(s_path_layer);
-}
-
-static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
-  curHandColor++;
-  if (curHandColor >= (int) (sizeof(handColors) / sizeof(handColors[0] ) ) )
-    curHandColor = 0;
-  text_layer_set_text_color(s_time_layer, (GColor) handColors[curHandColor]);
-  update_time();
-}
-
-static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
-  curPlaid++;
-  curPlaidColor = 0;
-  if (curPlaid > 5){
-    curPlaid = 0;
-  }
-  layer_mark_dirty(s_path_layer);
 }
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
@@ -503,8 +472,8 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   }
     
     
-    text_layer_set_text_color(s_time_layer, (GColor) handColors[curHandColor]);
-    text_layer_set_text_color(s_date_layer, (GColor) handColors[curHandColor]);
+    text_layer_set_text_color(s_time_layer, GColorFromHEX(curHandColor));
+    text_layer_set_text_color(s_date_layer, GColorFromHEX(curHandColor));
     layer_mark_dirty(s_path_layer);
 
 
@@ -525,15 +494,6 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
   APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
 }
 
-
-static void click_config_provider(void *context) {
-  // Register the ClickHandlers
-  window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
-  window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
-  window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
-}
-
-
 static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
@@ -549,7 +509,7 @@ static void window_load(Window *window) {
    // Create time TextLayer
   s_time_layer = text_layer_create(GRect(0, 60, 144, 50));
   text_layer_set_background_color(s_time_layer, GColorBlack);
-  text_layer_set_text_color(s_time_layer, (GColor) handColors[curHandColor]);
+  text_layer_set_text_color(s_time_layer, GColorFromHEX(curHandColor));
   text_layer_set_text(s_time_layer, "00:00");
 
   // Improve the layout to be more like a watchface
@@ -559,7 +519,7 @@ static void window_load(Window *window) {
   // Create date TextLayer
   s_date_layer = text_layer_create(GRect(0, 149, 144, 19));
   text_layer_set_background_color(s_date_layer, GColorClear);
-  text_layer_set_text_color(s_date_layer, (GColor) handColors[curHandColor]);
+  text_layer_set_text_color(s_date_layer, GColorFromHEX(curHandColor));
   text_layer_set_text(s_date_layer, "28");
 
   // Improve the layout to be more like a watchface
@@ -588,9 +548,6 @@ static void window_load(Window *window) {
   } else {
     layer_set_hidden(text_layer_get_layer(s_date_layer), false);
   }
-  
-  //Add click handler    
-  window_set_click_config_provider(s_main_window, click_config_provider);
   
 }
 
