@@ -13,6 +13,9 @@
 #define WATCH_MODE 3
 #define CAL_DATE 4
 #define BL_DETECT 5
+#define COLOR1 6
+#define COLOR2 7
+#define COLOR3 8
 
 static Window *s_main_window;
 static Layer *s_path_layer, *s_hands_layer;
@@ -30,12 +33,16 @@ static GPathInfo PATH_INFO = {
 
 int curPlaid = 0;
 int curPlaidColor = 0;
-int curHandColor = 0;
+int curHandColor = 0xAAFFAA;
+int color1 = 0;
+int color2 = 0;
+int color3 = 0;
 bool digitalWatch = true;
 int watchMode = 0;
-int calDate = 0;
+int calDate = 1;
 bool bluetoothOn = true;
 int blDetect = 0;
+bool customPlaid = false;
 
 static const GPathInfo MINUTE_HAND_POINTS = {
   4,
@@ -56,7 +63,7 @@ static const GPathInfo HOUR_HAND_POINTS = {
   }
 };
 
-static  uint8_t plaidColor[][4][8][12] = {
+static uint8_t plaidColor[][4][8][12] = {
     //Gingham
     {{{GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8,GColorOxfordBlueARGB8, GColorDarkGrayARGB8, GColorOxfordBlueARGB8, GColorCobaltBlueARGB8},
     {GColorLibertyARGB8, GColorWhiteARGB8, GColorLibertyARGB8, GColorPictonBlueARGB8, GColorLibertyARGB8, GColorWhiteARGB8, GColorLibertyARGB8, GColorPictonBlueARGB8},
@@ -137,7 +144,7 @@ static  uint8_t plaidColor[][4][8][12] = {
     },
     
     
-    //Grid
+    //Graph
     {
     {{GColorOxfordBlueARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8,
       GColorWhiteARGB8,GColorBlueMoonARGB8,GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8, GColorDarkGrayARGB8, GColorWhiteARGB8},
@@ -297,6 +304,12 @@ static  uint8_t plaidColor[][4][8][12] = {
 static void plaid(GContext *ctx){
   //144 × 168 dimensions
 
+  if (curPlaidColor == 4){
+      customPlaid = true;
+      curPlaidColor = 1;
+    } else {
+      customPlaid = false;
+    }
   
   int curW = 0;
   int curH = 0;
@@ -306,7 +319,25 @@ static void plaid(GContext *ctx){
   int curWidth = 0;
   
   while (curH < 168){
+    if (customPlaid){
+      switch (plaidColor[curPlaid][curPlaidColor][curColorRow][curColorCol]){
+        case GColorBlackARGB8:
+          graphics_context_set_fill_color(ctx, GColorFromHEX(color1));
+        break;
+        case GColorDarkGrayARGB8:
+          graphics_context_set_fill_color(ctx, GColorFromHEX(color2));
+        break;
+        case GColorLightGrayARGB8:
+          graphics_context_set_fill_color(ctx, GColorFromHEX(color3));
+        break;
+        default:
+         graphics_context_set_fill_color(ctx,  (GColor8) plaidColor[curPlaid][curPlaidColor][curColorRow][curColorCol]);
+        break;
+      }  
+    }
+    else {
       graphics_context_set_fill_color(ctx,  (GColor8) plaidColor[curPlaid][curPlaidColor][curColorRow][curColorCol]);   
+    }
       graphics_fill_rect(ctx, GRect(curW, curH, plaidWidth[curPlaid][0][curWidth], plaidWidth[curPlaid][1][curHeight]),0 ,0);
       
       //Increment colors
@@ -352,6 +383,10 @@ static void plaid(GContext *ctx){
     graphics_context_set_fill_color(ctx, GColorBlack);
     graphics_fill_circle(ctx, GPoint(72, 166), 18);
   }
+  
+  //Reset customPlaid
+  if (customPlaid)
+    curPlaidColor = 4;
     
 }
 
@@ -453,7 +488,21 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
       case BL_DETECT:
         APP_LOG(APP_LOG_LEVEL_INFO, "BL_DETECT received with value %d", (int)t->value->int32);
         blDetect = (int)t->value->int32;
-        break;}
+        break;
+      case COLOR1:
+        APP_LOG(APP_LOG_LEVEL_INFO, "COLOR1 received with value %d", (int)t->value->int32);
+        color1 = (int)t->value->int32;
+        break;
+      case COLOR2:
+        APP_LOG(APP_LOG_LEVEL_INFO, "COLOR2 received with value %d", (int)t->value->int32);
+        color2 = (int)t->value->int32;
+        break;
+      case COLOR3:
+        APP_LOG(APP_LOG_LEVEL_INFO, "COLOR3 received with value %d", (int)t->value->int32);
+        color3 = (int)t->value->int32;
+        break;
+    }
+    
     //ANALOG =0, DIGITAL = 1
     if (watchMode == 0){
           layer_set_hidden(s_hands_layer, false);
@@ -579,10 +628,13 @@ static void init(void) {
   //Pull values from saved data
   curPlaid = persist_exists(CUR_PLAID) ? persist_read_int(CUR_PLAID) : 0;
   curPlaidColor = persist_exists(CUR_PLAID_COLOR) ? persist_read_int(CUR_PLAID_COLOR) : 0;
-  curHandColor = persist_exists(CUR_HAND_COLOR) ? persist_read_int(CUR_HAND_COLOR) : 0;
+  curHandColor = persist_exists(CUR_HAND_COLOR) ? persist_read_int(CUR_HAND_COLOR) : 0xAAFFAA;
   watchMode = persist_exists(WATCH_MODE) ? persist_read_int(WATCH_MODE) : 0;
-  calDate = persist_exists(CAL_DATE) ? persist_read_int(CAL_DATE) : 0;
-  blDetect = persist_exists(BL_DETECT) ? persist_read_int(BL_DETECT) : 0;
+  calDate = persist_exists(CAL_DATE) ? persist_read_int(CAL_DATE) : 1;
+  blDetect = persist_exists(BL_DETECT) ? persist_read_int(BL_DETECT) : 1;
+  color1 = persist_exists(COLOR1) ? persist_read_int(COLOR1) : 0;
+  color2 = persist_exists(COLOR2) ? persist_read_int(COLOR2) : 0;
+  color3 = persist_exists(COLOR3) ? persist_read_int(COLOR3) : 0;
 
   // Create main Window
   s_main_window = window_create();
@@ -629,6 +681,9 @@ static void deinit(void) {
   persist_write_int(WATCH_MODE, watchMode);
   persist_write_int(CAL_DATE, calDate);
   persist_write_int(BL_DETECT, blDetect);
+  persist_write_int(COLOR1, color1);
+  persist_write_int(COLOR2, color2);
+  persist_write_int(COLOR3, color3);
 
 }
 
